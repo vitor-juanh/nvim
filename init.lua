@@ -567,7 +567,8 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { { 'ruff_organize_imports', 'ruff_format' } },
+        php = { 'pint' },
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
@@ -756,7 +757,23 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'python', 'php' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'vim',
+        'vimdoc',
+        'python',
+        'php',
+        'php_only',
+        'phpdoc',
+        'vue',
+        'javascript',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -770,6 +787,25 @@ require('lazy').setup({
     },
     config = function(_, opts)
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+
+      -- Configure treesitter for blade
+
+      local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+
+      parser_config.blade = {
+        install_info = {
+          url = 'https://github.com/EmranMR/tree-sitter-blade',
+          files = { 'src/parser.c' },
+          branch = 'main',
+        },
+        filetype = 'blade',
+      }
+
+      vim.filetype.add {
+        pattern = {
+          ['.*%.blade%.php'] = 'blade',
+        },
+      }
 
       -- Prefer git instead of curl in order to improve connectivity in some environments
       require('nvim-treesitter.install').prefer_git = true
@@ -819,6 +855,24 @@ require('lazy').setup({
     keys = {
       { '<leader>g', '<cmd>LazyGit<cr>', desc = 'Open Lazy[G]it' },
     },
+  },
+
+  -- Laravel
+
+  {
+    'adalessa/laravel.nvim',
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+      'tpope/vim-dotenv',
+      'MunifTanjim/nui.nvim',
+      'nvimtools/none-ls.nvim',
+    },
+    cmd = { 'Sail', 'Composer', 'Laravel' },
+    keys = {
+      { '<leader>a', ':Laravel artisan<cr>' },
+    },
+    event = { 'VeryLazy' },
+    config = true,
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
